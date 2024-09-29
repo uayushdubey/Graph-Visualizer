@@ -68,4 +68,4 @@ If DFS is run starting from A, the traversal could be: A -> B -> D -> C -> E (de
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/graph-visualizer.git
+   git clone https://github.com/uayushdubey/graph-visualizer.git
