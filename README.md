@@ -2,7 +2,7 @@
 
 ## Navigation
 
-Check out the live project [here](https://adapbl.netlify.in)!   
+Check out the live project [here](https://adapbl.netlify.app)!   
 Experience the animations and interactions as you visualize graphs with different algorithms!
 
 ## Overview
