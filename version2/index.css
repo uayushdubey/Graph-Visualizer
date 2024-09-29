@@ -16,12 +16,7 @@ header {
     color: white;
 }
 
-nav ul {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-}
+
 
 nav ul li {
     margin: 0 15px;
