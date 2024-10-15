@@ -1,6 +1,6 @@
-// dijkstra algorithm
+// Dijkstra algorithm
 
-// importing functions
+// Importing functions
 import {
 	setWallAttribute
 } from '../wall.js';
@@ -8,98 +8,121 @@ import {
 	rowsize,
 	colsize,
 } from '../main.js';
-// variables
+
+// Variables
 var container = document.querySelector('.container');
 var slider = document.getElementById("speed");
 var time = slider.value;
-// console.log(time);
 
-// Check and update node
+// Check if a node is valid
 function check(row, col) {
 	if (row >= 0 && col >= 0 && row < rowsize && col < colsize) return true;
 	return false;
 }
-let fl=false;
-function traverse(node, seen, counter, endnode) {
-	let row = parseInt(node.getAttribute('row'));
-	let col = parseInt(node.getAttribute('col'));
-	if(fl || node==endnode) {
-		fl=true;
-		return;
-	}
-	let wall = parseInt(node.getAttribute('wall'));
-	if (wall == 1) return;
-	seen.push(node);
-	changeColor(node, counter);
 
-	// Check up down left right
-	let cr = row, cc = col;
+let fl = false; // A flag to stop traversal once the end is found
 
-	if (check(cr + 1, cc)) {
-		var child = document.querySelector(`div[row="${cr + 1}"][col="${cc}"]`);
-		if (!seen.includes(child)) traverse(child, seen, counter + 1, endnode);
-	}
-	if (check(cr, cc + 1)) {
-		var child = document.querySelector(`div[row="${cr}"][col="${cc + 1}"]`);
-		if (!seen.includes(child)) traverse(child, seen, counter + 1, endnode);
-	}
-	if (check(cr - 1, cc)) {
-		var child = document.querySelector(`div[row="${cr - 1}"][col="${cc}"]`);
-		if (!seen.includes(child)) traverse(child, seen, counter + 1, endnode);
-	}
-	if (check(cr, cc - 1)) {
-		var child = document.querySelector(`div[row="${cr}"][col="${cc - 1}"]`);
-		if (!seen.includes(child)) traverse(child, seen, counter + 1, endnode);
+// Traverse function (DFS traversal)
+function dfsTraversal(node, seen, parentMap, endNode) {
+	let stack = [node]; // Stack for DFS traversal
+	parentMap.set(node, null); // Start node has no parent
+	seen.push(node); // Mark start node as visited
+
+	while (stack.length > 0) {
+		let current = stack.pop(); // Pop from stack (DFS behavior)
+		let row = parseInt(current.getAttribute('row'));
+		let col = parseInt(current.getAttribute('col'));
+
+		// Color the current node as part of the traversal
+		changeColor(current, seen.length); // Color the DFS path during traversal
+
+		// Stop if we reach the end node
+		if (current === endNode) {
+			fl = true;
+			return; // Exit if we've reached the end
+		}
+
+		// Get valid neighbors (up, down, left, right)
+		let neighbors = [];
+		if (check(row + 1, col)) neighbors.push(document.querySelector(`div[row="${row + 1}"][col="${col}"]`));
+		if (check(row - 1, col)) neighbors.push(document.querySelector(`div[row="${row - 1}"][col="${col}"]`));
+		if (check(row, col + 1)) neighbors.push(document.querySelector(`div[row="${row}"][col="${col + 1}"]`));
+		if (check(row, col - 1)) neighbors.push(document.querySelector(`div[row="${row}"][col="${col - 1}"]`));
+
+		// Traverse neighbors
+		for (let neighbor of neighbors) {
+			let wall = parseInt(neighbor.getAttribute('wall'));
+			// If the neighbor is not seen and it's not a wall, visit it
+			if (!seen.includes(neighbor) && wall !== 1) {
+				seen.push(neighbor);
+				parentMap.set(neighbor, current); // Track parent
+				stack.push(neighbor); // Push neighbor onto stack for DFS
+			}
+		}
 	}
 }
 
-// Animate the nodes
+// Animate the nodes during traversal (DFS path)
 function changeColor(node, counter) {
 	setTimeout(() => {
-		node.setAttribute('class', 'Path_green');
-		node.innerHTML = counter;
-
+		node.setAttribute('class', 'Path_green'); // Set path color during DFS traversal
+		node.innerHTML = counter; // Optional: show the step number
 	}, counter * time);
-	setTimeout(() => {
-		node.setAttribute('class', 'Path_red');
-	}, counter * time + 100);
-} // End changeColor
+}
+
+// Backtrack from the end node to the start node and color the optimal path in burlywood
+function colorOptimalPath(parentMap, endNode) {
+	let pathNode = endNode;
+	let counter = 0;
+
+	// Backtrack from the end node to the start node
+	while (pathNode != null) {
+		setTimeout(() => {
+			pathNode.setAttribute('class', 'Path_burlywood'); // Set optimal path color
+		}, counter * time);
+		pathNode = parentMap.get(pathNode); // Move to parent node
+		counter++;
+	}
+}
 
 export function dfs(x1 = 0, y1 = 0, x2 = rowsize - 1, y2 = colsize - 1) {
 	time = slider.value;
-	time = 40 + (time - 1) * (-2);
+	time = 40 + (time - 1) * (-2); // Adjust speed based on slider value
 	container.removeEventListener('mousedown', setWallAttribute);
 	container.removeEventListener('mouseover', setWallAttribute);
+
+	// Get the start and end nodes
 	var startNode = document.querySelector(`div[row='${x1}'][col='${y1}']`);
 	var endNode = document.querySelector(`div[row='${x2}'][col='${y2}']`);
-	// Hide button
+
+	// Hide buttons during traversal
 	var btn = document.querySelector('.start');
 	var refreshBtn = document.querySelector('.refresh');
 	btn.style.visibility = 'hidden';
 	refreshBtn.style.visibility = 'hidden';
 
-	/* ################################### Algo here ############################3*/
+	/* ########################## Modified DFS Algorithm ############################*/
 
 	var seen = [];
-	let counter = 1;
-	fl=false;
-	traverse(startNode, seen, counter, endNode);
+	let parentMap = new Map(); // Map to track parent nodes
+	fl = false;
 
-	// Draw out best route
+	// Perform DFS traversal
+	dfsTraversal(startNode, seen, parentMap, endNode);
+
+	// After traversal, color the optimal path
 	setTimeout(() => {
-		startNode.setAttribute('class', 'ends')
-		while (endNode.getAttribute('parent') != 'null') {
-			endNode.setAttribute('class', 'Path_green')
-			var coor = endNode.getAttribute('parent').split('|');
-			var prow = parseInt(coor[0]);
-			var pcol = parseInt(coor[1]);
-			endNode = document.querySelector(`div[row="${prow}"][col="${pcol}"]`);
+		if (fl) { // Check if the endNode was reached
+			colorOptimalPath(parentMap, endNode); // Color the optimal path after traversal
+			startNode.setAttribute('class', 'ends'); // Mark start node as "end"
+			endNode.setAttribute('class', 'ends'); // Mark end node as "end"
+		} else {
+			console.log("No path found from start to end.");
 		}
-		endNode = document.querySelector(`div[row="${x2}"][col="${y2}"]`);
-		endNode.setAttribute('class', 'ends');
-	}, counter * time + 100);
-	// Show refresh button again
+	}, seen.length * time + 100);
+
+	// Show refresh button after traversal
 	setTimeout(() => {
 		refreshBtn.style.visibility = 'visible';
-	}, counter * time + 100);
-} // End start
+	}, seen.length * time + 200);
+}
