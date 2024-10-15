@@ -1,5 +1,3 @@
-// Dijkstra algorithm
-
 // Importing functions
 import {
 	setWallAttribute
