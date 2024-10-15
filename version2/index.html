@@ -13,6 +13,31 @@
     <title>Graph Algorithm Analyzer</title>
     <meta name="title" content="Graph Algorithm Analyzer">
     <meta name="description" content="Visualize working of complex graph algorithms, play with them, and know them better.">
+    <style>
+        .section {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        pre {
+            background-color: #000; /* Black background */
+            color: #fff;            /* White text */
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,8 +61,8 @@
                     width: 100%;
                     max-width: 300px;
                     height: 80vh;
-                    /* justify-content: center;
-                    align-items: center; */
+                    justify-content: center;
+                    align-items: center;
                 }
             </style>
         </div>
@@ -53,6 +78,128 @@
                 </content>
             </div>
         </div>
+
+        <!-- Dijkstra's Algorithm Section -->
+        <div class="section">
+            <h2>Dijkstra's Algorithm</h2>
+            <p>Dijkstra's Algorithm finds the shortest path from a starting node to all other nodes in a weighted graph. It uses a priority queue to repeatedly select the node with the smallest distance from the start node.</p>
+            <p><strong>Time Complexity:</strong> O((V + E) log V), where V is the number of vertices and E is the number of edges.</p>
+            <p><strong>Example:</strong> In a graph with nodes A, B, C, and D, where the edges have weights as follows: A-B (1), A-C (4), B-C (2), B-D (5), C-D (1). The shortest path from A to D is A -> B -> C -> D with a total cost of 4.</p>
+            <p><strong>Pseudocode:</strong></p>
+            <pre>
+AlgorithmShortestPaths(u, cost, dist, n)
+  // dist[j], 1 < j < n, is set to the length of the shortest
+  // path from vertex v to vertex j in a digraph G with n
+  // vertices. dist[v] is set to zero. G is represented by its
+  // cost adjacency matrix cost[1:n, 1:n].
+  {
+    for i := 1 to n do
+    {
+      S[i] := false; // Initialize S.
+      dist[i] := cost[v, i];
+    }
+    S[u] := true; dist[u] := 0.0; // Put u in S.
+    
+    for num := 2 to n do
+    {
+      // Determine n - 1 paths from u.
+      Choose u from among those vertices not in S
+      such that dist[u] is minimum; S[u] := true; // Put u in S.
+      
+      for (each w adjacent to u with S[w] = false) do
+      {
+        // Update distances.
+        if (dist[w] > dist[u] + cost[u, w]) then
+        {
+          dist[w] := dist[u] + cost[u, w];
+        }
+      }
+    }
+  }
+            </pre>
+        </div>
+
+        <!-- Breadth-First Search Section -->
+        <div class="section">
+            <h2>Breadth-First Search (BFS)</h2>
+            <p>BFS explores all neighbors at the present depth prior to moving on to nodes at the next depth level. In an unweighted graph, BFS can be used to find the shortest path by visiting nodes layer by layer.</p>
+            <p><strong>Time Complexity:</strong> O(V + E), where V is the number of vertices and E is the number of edges.</p>
+            <p><strong>Example:</strong> In the same graph as above, the BFS traversal starting from A visits the nodes in the order A -> B -> C -> D. The optimal path from A to D using BFS is A -> B -> C -> D with a total cost of 4.</p>
+            <p><strong>Pseudocode:</strong></p>
+            <pre>
+AlgorithmBFS(w)
+  // A breadth-first search of G is carried out beginning
+  // at vertex v. For any node i, visited[i]= 1 if i has
+  // already been visited. The graph G and array visited[]
+  // are global; visited[] is initialized to zero.
+  {
+    u := v; // q is a queue of unexplored vertices.
+    visited[v] := 1;
+    repeat
+    {
+      for all vertices w adjacent from u do
+      {
+        if (visited[w] = 0) then
+        {
+          Add w to q; // w is unexplored.
+          visited[w] := 1;
+        }
+      }
+      if q is empty then return; // No unexplored vertex.
+      Delete u from q; // Get first unexplored vertex.
+    } until (false);
+  }
+            </pre>
+        </div>
+
+        <!-- Depth-First Search Section -->
+        <div class="section">
+            <h2>Depth-First Search (DFS)</h2>
+            <p>DFS explores as far as possible along a branch before backtracking. While it does not guarantee the shortest path in weighted graphs, it can still be useful for exploring all possible paths.</p>
+            <p><strong>Time Complexity:</strong> O(V + E), where V is the number of vertices and E is the number of edges.</p>
+            <p><strong>Example:</strong> Given the same graph as before with nodes A, B, C, and D, where the edges have weights:</p>
+            <ul>
+                <li>A-B (1)</li>
+                <li>A-C (4)</li>
+                <li>B-C (2)</li>
+                <li>B-D (5)</li>
+                <li>C-D (1)</li>
+            </ul>
+            <p>If we start the DFS traversal from A, it might visit the nodes in the order A -> B -> D -> C. The output path may not be optimal, as the traversal does not account for edge weights.</p>
+            <p><strong>Output Path:</strong> A -> B -> D with a total cost of 6 (not optimal).</p>
+            <p><strong>Why the Output Differs:</strong> DFS may explore deeper branches first, which can lead to suboptimal paths, especially in weighted graphs. It does not consider the weights of edges when choosing which node to visit next. In contrast, both BFS and Dijkstra's Algorithm systematically explore the shortest paths based on edge weights, leading to optimal paths.</p>
+            <p><strong>Pseudocode:</strong></p>
+            <pre>
+AlgorithmDFS(w)
+  // Given an undirected (or directed) graph G = (V,E) with
+  // n vertices and an array visited[] initially set
+  // to zero, this algorithm visits all vertices
+  // reachable from v. G and visited[] are global.
+  {
+    visited[v] := 1;
+    for each vertex w adjacent from v do
+    {
+      if (visited[w] == 0) then
+      {
+        AlgorithmDFS(w); // Recurse to visit w
+      }
+    }
+  }
+            </pre>
+        </div>
+
+        <!-- Section Explaining the Use of Algorithms -->
+        <div class="section">
+            <h2>Why Use Dijkstra's, BFS, and DFS Together?</h2>
+            <p>In our project, we use Dijkstra's Algorithm, BFS, and DFS to leverage the strengths of each method:</p>
+            <ul>
+                <li><strong>Dijkstra's Algorithm:</strong> It is ideal for finding the shortest path in weighted graphs. It efficiently handles varying edge weights to ensure the optimal path is found.</li>
+                <li><strong>Breadth-First Search (BFS):</strong> BFS is used in unweighted graphs to find the shortest path by exploring all neighboring nodes at the present depth before moving deeper. It's quick for finding shortest paths when edge weights are uniform.</li>
+                <li><strong>Depth-First Search (DFS):</strong> Although it doesn't guarantee the shortest path, DFS is useful for exploring all possible paths in a graph. It can be beneficial for specific applications where path exploration is more critical than path length.</li>
+            </ul>
+            <p>By combining these algorithms, we can analyze various scenarios and understand different pathfinding behaviors in graphs.</p>
+        </div>
+
     </section>
 </body>
 
